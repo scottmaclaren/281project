@@ -78,13 +78,15 @@ Clr_loop:
 	djnz R1, Clr_loop
 
 	; Move to first column of first row	
-	mov a, #81H
+	mov a, #82H
 	lcall LCD_command
 		
 ret
 
 printtemp:
-
+	mov a, 'P'
+	lcall LCD_put
+	
 	mov a, #'T'
 	lcall LCD_put
 
@@ -124,7 +126,5 @@ printtemp:
 	lcall LCD_put
 ret
 
-numtemp:
 
-ret
 $LIST
