@@ -16,6 +16,7 @@ T2LOAD EQU 65536-(FREQ/(32*BAUD))
 DSEG at 30H
 x:   ds 4
 y:   ds 4
+z:   ds 4
 bcd: ds 5
 current_temp: ds 1
 BSEG
@@ -46,26 +47,24 @@ MyProgram:
 
 	;setb ce
 	;lcall INIT_SPI
-	;lcall InitSerialPort
+	lcall InitSerialPort
 	
 
 	lcall initLCD
-	lcall  printtemp
+	lcall printtemp
 	lcall printstate
 	lcall state3
-	lcall writetemp
-	;lcall state1
-	;moving in a temperature
+;
 	
-	mov current_temp, #110h
+	mov current_temp, #150
 	
 	mov x+0, current_temp+0
-	;load_x(100)
+
 	
 	
 	lcall hex2bcd
-	lcall writetemp
-	
+	lcall writetemp ; command to write the current temperature to the display
+	lcall sendstring
 	forever:
 	sjmp forever
 	

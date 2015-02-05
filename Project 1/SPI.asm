@@ -9,6 +9,10 @@ SendString:
 	mov dptr, #ASCII
 	; Display Digit 1 - no decimal points from integer division
  
+    mov a, bcd+1
+    anl a, #0fh
+    movc A, @A+dptr
+    lcall putchar
     
     mov A, bcd+0
     swap a
@@ -20,6 +24,8 @@ SendString:
     anl a, #0fh
     movc A, @A+dptr
     lcall putchar
+    
+    
     mov a, #'\r'
     lcall putchar
     mov a, #'\n'
@@ -50,6 +56,12 @@ InitSerialPort:
 	setb TR2 ; Enable timer 2
 	mov SCON, #52H
 	ret
+	
+	
+	
+	
+	
+	
 	
 DO_SPI_G:
 	push acc
@@ -111,8 +123,69 @@ Read_ADC1:; this will read the 0 channel of the adc r5 holds the high byte, r4 t
 	setb ce
 	ret
 
+tempmath:
+	mov x+1, R7
+	mov x+0, R6
+	;this holds data from adc0
+	
+	load_y(500)
+	lcall mul32
+
+	load_y(1023)
+	lcall div32
+	
+	Load_y(273)
+	lcall sub32
+	
+	
+	
+	;if channel 1 is the lm 335
+	mov z+0, x+0
+	mov z+1, x+1
+	mov z+2, x+2
+	mov z+3, x+3
+	
+	
+	
+	
+	;becauase we need to use x and y for the math functions
+	
+	mov x+1, R5
+	mov x+0, R4
+	;this is data from adc channel 1- this is the thermocouple
+	;need way to turn voltage into a value
+
+	load_y(500)
+	lcall mul32
+	load_y(81818)
+	lcall mul32
+	load_y(1023)
+	lcall div32
+	load_y(200)
+	lcall div32
+	
+	
 
 
+	
+	;we then need to add the two temperatures
+	; x currently has the temp of the thermocouple
+	mov y+0, z+0
+	mov y+1, z+1
+	mov y+2, z+2
+	mov y+3, z+3
+	
+	lcall add32
+	; x now has the proper temperature
+	;how many digits for the current temp
+	mov current_temp+0, x+0
+	mov current_temp+1, x+1
+	mov current_temp+2, x+2
+	mov current_temp+3, x+3
+	
+	; current temp has a copy of the temperature for other things if we need it
+	
+	
 putchar:
     jnb TI, putchar
     clr TI
