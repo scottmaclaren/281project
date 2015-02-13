@@ -6,6 +6,95 @@ $NOLIST
 
 CSEG
 
+clearlcd:
+	mov a, #01H ; Clear screen
+	Clearscreene:   
+    mov R1, #40
+	Clr_loope:
+	lcall Wait40us
+	djnz R1, Clr_loop
+
+	; Move to first column of first row	
+	mov a, #80H
+	lcall LCD_command
+	ret
+Write2LCD_Line1 MAC
+	;Write2LCD_Line1(%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15)
+	mov a, #080h
+	lcall LCD_command
+	mov a, #%0
+	lcall LCD_put
+	mov a, #%1
+	lcall LCD_put
+	mov a, #%2
+	lcall LCD_put
+	mov a, #%3
+	lcall LCD_put
+	mov a, #%4
+	lcall LCD_put
+	mov a, #%5
+	lcall LCD_put
+	mov a, #%6
+	lcall LCD_put
+	mov a, #%7
+	lcall LCD_put
+	mov a, #%8
+	lcall LCD_put
+	mov a, #%9
+	lcall LCD_put
+	mov a, #%10
+	lcall LCD_put
+	mov a, #%11
+	lcall LCD_put
+	mov a, #%12
+	lcall LCD_put
+	mov a, #%13
+	lcall LCD_put
+	mov a, #%14
+	lcall LCD_put
+	mov a, #%15
+	lcall LCD_put
+ENDMAC
+
+Write2LCD_Line2 MAC
+	;Write2LCD_Line2(%0, %1, %2, %3, %4, %5, %6, %7, %8, %9, %10, %11, %12, %13, %14, %15)
+	mov a, #0C0h
+	lcall LCD_command
+	mov a, #%0
+	lcall LCD_put
+	mov a, #%1
+	lcall LCD_put
+	mov a, #%2
+	lcall LCD_put
+	mov a, #%3
+	lcall LCD_put
+	mov a, #%4
+	lcall LCD_put
+	mov a, #%5
+	lcall LCD_put
+	mov a, #%6
+	lcall LCD_put
+	mov a, #%7
+	lcall LCD_put
+	mov a, #%8
+	lcall LCD_put
+	mov a, #%9
+	lcall LCD_put
+	mov a, #%10
+	lcall LCD_put
+	mov a, #%11
+	lcall LCD_put
+	mov a, #%12
+	lcall LCD_put
+	mov a, #%13
+	lcall LCD_put
+	mov a, #%14
+	lcall LCD_put
+	mov a, #%15
+	lcall LCD_put
+ENDMAC
+
+
 
    
 Wait40us:
@@ -83,7 +172,7 @@ Clr_loop:
 		
 ret
 
-printtemp:
+printtempstart:
 	
 	
 	mov a, #'T'
@@ -133,7 +222,7 @@ writetemp: ; this writes the current temp to the lcd display
 	mov x+0, current_temp+0 ;because the load x doesn't like variables- and we can't do a direct mov
 	lcall hex2bcd
 	
-	 mov A, bcd+1 ; need to print the high number first
+	mov A, bcd+1 ; need to print the high number first
     anl a, #0fh
     movc A, @A+dptr
     lcall lcd_put
@@ -150,11 +239,17 @@ writetemp: ; this writes the current temp to the lcd display
     anl a, #0fh
     movc A, @A+dptr
     lcall lcd_put
-       
+    
+   ;mov a, Cnt_10ms_pwm
+  ; cjne a, #98, superearlyreturn
+  lcall waithalfsec
+  lcall waithalfsec
+   lcall sendstring
+superearlyreturn:   
 ret
 
 
-printstate: ;for putting the word state on the second row
+printstatestart: ;for putting the word state on the second row
 	mov a, #0c0H 
 	lcall LCD_command
 	
@@ -175,7 +270,7 @@ printstate: ;for putting the word state on the second row
 	lcall lcd_put 
 	ret
 	
-state0:
+printstate0:
 mov a, #0c7H 
 	lcall LCD_command
 	
@@ -187,23 +282,35 @@ mov a, #0c7H
 	lcall lcd_put
 	mov a, #'E'
 	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
 	ret
 
-state1:
+printstate1:
 mov a, #0c7H 
 	lcall LCD_command
 	
 	mov a, #'R'
 	lcall lcd_put
+	mov a, #'2'
+	lcall lcd_put
+	mov a, #'s'
+	lcall lcd_put
+	mov a, #'o'
+	lcall lcd_put
 	mov a, #'a'
 	lcall lcd_put
-	mov a, #'m'
-	lcall lcd_put
-	mov a, #'p'
+	mov a, #'k'
 	lcall lcd_put
 	ret
 
-state2:
+printstate2:
 mov a, #0c7H 
 	lcall LCD_command
 	
@@ -215,9 +322,17 @@ mov a, #0c7H
 	lcall lcd_put
 	mov a, #'k'
 	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
 	ret	
 	
-state3:
+printstate3:
 mov a, #0c7H 
 	lcall LCD_command
 	
@@ -235,7 +350,7 @@ mov a, #0c7H
 	lcall lcd_put
 	ret	
 
-state4:
+printstate4:
 mov a, #0c7H 
 	lcall LCD_command
 	
@@ -251,10 +366,14 @@ mov a, #0c7H
 	lcall lcd_put
 	mov a, #'w'
 	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+
+
 	ret	
 
 
-state5:
+printstate5:
 mov a, #0c7H 
 	lcall LCD_command
 	
@@ -265,5 +384,15 @@ mov a, #0c7H
 	mov a, #'o'
 	lcall lcd_put
 	mov a, #'l'
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	mov a, #' '
+	lcall lcd_put
+	
 	ret		
 $LIST
